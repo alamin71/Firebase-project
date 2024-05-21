@@ -1,28 +1,47 @@
-import {GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, getAuth, signInWithPopup, signOut } from "firebase/auth";
 import app from "../../firebase/firebase.init";
-//import { GoogleAuthProvider } from "firebase/auth/cordova";
+import { useState } from "react";
 
 const Login = () => {
+    const [user, setUser] = useState(null)
     const auth = getAuth(app);
-    console.log(app)
-    const provider = new(GoogleAuthProvider);
+    //console.log(app)
+    const provider = new (GoogleAuthProvider);
 
-    const handleGoogleSignIn=()=>{
+    const handleGoogleSignIn = () => {
         signInWithPopup(auth, provider)
-        .then(result => {
-            const user = result.user;
-            console.log(user);
+            .then(result => {
+                const LoggedInUser = result.user;
+                setUser(LoggedInUser);
 
-        })
-        .catch(error => {
-            console.log('error', error.message)
-        })
+            })
+            .catch(error => {
+                console.log('error', error.message)
+            })
+    }
+    const handleSignOut = () => {
+        signOut(auth)
+            .then(result => {
+                console.log(result)
+                setUser(null)
+            })
+            .cath(error => {
+                console.log('error', error.message)
+            })
     }
 
 
     return (
         <div>
-            <button onClick={handleGoogleSignIn}>Google login</button>
+            {user ?
+                <button onClick={handleSignOut}>SignOut</button> :
+                <button onClick={handleGoogleSignIn}>Google login</button>
+            }
+            {user && <div>
+                <h1>User: {user.displayName}</h1>
+                <h2>Email:{user.email}</h2>
+                <img src={user.photoURL} alt="" />
+            </div>}
         </div>
     );
 };
